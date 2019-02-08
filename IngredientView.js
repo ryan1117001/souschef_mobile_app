@@ -1,13 +1,9 @@
 import React, { Component } from 'react';
 import { Text, View, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native';
-import SocketIOClient from 'socket.io-client';
 
 class IngredientView extends Component {
    constructor(props) {
       super(props);
-
-      this.socket = SocketIOClient('http://localhost:8080');
-
       this.state = {
          ingredients: [
             { 'name': 'All-Purpose Flour', 'id': 0, 'grams': 0 },
@@ -20,7 +16,8 @@ class IngredientView extends Component {
       }
    }
    componentDidMount() {
-
+      console.log("didMount")
+      
    }
    handleText = (id) => (param) => {
       let ingredientsCopy = JSON.parse(JSON.stringify(this.state.ingredients))
@@ -31,7 +28,6 @@ class IngredientView extends Component {
    }
    handlePress = () => {
       console.log("handle press")
-      this.socket.send(JSON.stringify(this.state.ingredients))
    }
    render() {
       return (
