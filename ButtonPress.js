@@ -1,10 +1,9 @@
-var ws = new WebSocket('ws://localhost:8080');
+var ws = new WebSocket('ws://10.1.250.128:8000');
 
 function socketSetup() {
     console.log("Setup")
     ws.onopen = () => {
         console.log("connection opened")
-        ws.send('something');
     }
 
     ws.onmessage = (e) => {
@@ -26,4 +25,8 @@ function socketSetup() {
     };
 }
 
-export { socketSetup }
+function send(msg) {
+    ws.send(JSON.stringify(msg))
+}
+
+export { socketSetup, send }

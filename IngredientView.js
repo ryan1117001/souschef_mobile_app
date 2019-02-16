@@ -1,23 +1,25 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, ScrollView, TextInput, TouchableOpacity, Switch, KeyboardAvoidingView } from 'react-native';
+import * as buttonpress from './ButtonPress';
 
 class IngredientView extends Component {
    constructor(props) {
       super(props);
+      buttonpress.socketSetup()
       this.state = {
          ingredients: [
-            { 'name': 'All-Purpose Flour', 'id': 0, 'grams': 0 },
-            { 'name': 'Baking Soda', 'id': 1, 'grams': 0 },
-            { 'name': 'Salt', 'id': 2, 'grams': 0 },
-            { 'name': 'Baking Powder', 'id': 3, 'grams': 0 },
-            { 'name': 'Brown Sugar', 'id': 4, 'grams': 0 },
-            { 'name': 'Chocolate Chips', 'id': 5, 'grams': 0 },
-         ]
+            { 'id': 0, 'name': 'All-Purpose Flour', 'enable': true, 'grams': 0 },
+            { 'id': 1, 'name': 'Baking Soda', 'enable': true, 'grams': 0 },
+            { 'id': 2, 'name': 'Salt', 'enable': true, 'grams': 0 },
+            { 'id': 3, 'name': 'Baking Powder', 'enable': true, 'grams': 0 },
+            { 'id': 4, 'name': 'Brown Sugar', 'enable': true, 'grams': 0 },
+            { 'id': 5, 'name': 'Chocolate Chips', 'enable': true, 'grams': 0 },
+         ],
       }
    }
    componentDidMount() {
       console.log("didMount")
-      
+
    }
    handleText = (id) => (param) => {
       let ingredientsCopy = JSON.parse(JSON.stringify(this.state.ingredients))
@@ -28,30 +30,53 @@ class IngredientView extends Component {
    }
    handlePress = () => {
       console.log("handle press")
+      console.log(this.state.ingredients)
+      buttonpress.send(this.state.ingredients);
+   }
+   handleToggle = (id) => (param) => {
+      console.log(id, param)
+      let ingredientsCopy = JSON.parse(JSON.stringify(this.state.ingredients))
+      ingredientsCopy[id].enable = param
+      this.setState({
+         ingredients: ingredientsCopy
+      })
    }
    render() {
       return (
-         <View>
-            <ScrollView>
-               {
-                  this.state.ingredients.map((item, index) => (
-                     <View key={item.id} style={styles.item}>
-                        <Text>{item.name}</Text>
-                        <TextInput
-                           placeholder="grams"
-                           onChangeText={this.handleText(item.id)}
-                        />
-                     </View>
-                  ))
-               }
-            </ScrollView>
-            <TouchableOpacity
-               style={styles.dispenseButton}
-               onPress={this.handlePress}
-            >
-               <Text style={styles.dispenseText} > Dispense </Text>
-            </TouchableOpacity>
-         </View>
+         <KeyboardAvoidingView>
+            <View>
+               <ScrollView>
+                  {
+                     this.state.ingredients.map((item, index) => (
+                        <View key={item.id} style={styles.item}>
+                           <Text
+                              style={styles.nameLayout}
+                           >
+                              {item.name}
+                           </Text>
+                           <Switch
+                              style={styles.switchLayout}
+                              value={item.enable}
+                              onValueChange={this.handleToggle(item.id)}
+                           />
+                           <TextInput
+                              style={styles.input}
+                              keyboardType='numeric'
+                              placeholder="grams"
+                              onChangeText={this.handleText(item.id)}
+                           />
+                        </View>
+                     ))
+                  }
+               </ScrollView>
+               <TouchableOpacity
+                  style={styles.dispenseButton}
+                  onPress={this.handlePress}
+               >
+                  <Text style={styles.dispenseText} > Dispense </Text>
+               </TouchableOpacity>
+            </View>
+         </KeyboardAvoidingView>
       )
    }
 }
@@ -60,19 +85,21 @@ export default IngredientView
 const styles = StyleSheet.create({
    item: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: 30,
+      padding: 5,
       margin: 2,
       borderColor: '#2a4944',
       borderWidth: 1,
-      backgroundColor: '#d2f7f1'
+      backgroundColor: '#d2f7f1',
+      alignItems: 'center',
+      justifyContent: 'space-between'
+   },
+   nameLayout: {
+      // paddingRight: 20,      
    },
    input: {
       margin: 15,
-      height: 40,
-      borderColor: '#7a42f4',
-      borderWidth: 1
+      height: 20,
+
    },
    dispenseButton: {
       backgroundColor: '#d2f7f1',
@@ -85,6 +112,9 @@ const styles = StyleSheet.create({
    },
    dispenseText: {
       color: 'black',
-      textAlign: 'center',
+      textAlign: 'center'
    },
+   switchLayout: {
+      // paddingRight: 20
+   }
 })
