@@ -1,11 +1,21 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet, ScrollView, TextInput, TouchableOpacity, Switch, KeyboardAvoidingView } from 'react-native';
-import * as buttonpress from './ButtonPress';
+import {
+   Text,
+   View,
+   StyleSheet,
+   ScrollView,
+   TextInput,
+   TouchableOpacity,
+   Switch,
+   KeyboardAvoidingView
+} from 'react-native';
 
 class IngredientView extends Component {
    constructor(props) {
       super(props);
-      buttonpress.socketSetup()
+
+      this.socket = new WebSocket('ws://10.1.250.128:8000');
+
       this.state = {
          ingredients: [
             { 'id': 0, 'name': 'All-Purpose Flour', 'enable': true, 'grams': 0 },
@@ -15,12 +25,29 @@ class IngredientView extends Component {
             { 'id': 4, 'name': 'Brown Sugar', 'enable': true, 'grams': 0 },
             { 'id': 5, 'name': 'Chocolate Chips', 'enable': true, 'grams': 0 },
          ],
+         dispense:
+            { 'disabled': false, 'text': 'Tap to Dispense' }
       }
    }
    componentDidMount() {
-      console.log("didMount")
-
+      this.socket.onopen = () => {
+         console.log("connection opened")
+      }
+      this.socket.onerror = (e) => {
+         console.log("error: ", e.message)
+      }
+      this.socket.onclose = (e) => {
+         console.log("closing", e.code, e.reason)
+      }
+      this.socket.onmessage = (e) => {
+         console.log(e.data)
+         this.setState({
+            dispense:
+               { 'disabled': false, 'text': 'Tap to Dispense' }
+         })
+      }
    }
+
    handleText = (id) => (param) => {
       let ingredientsCopy = JSON.parse(JSON.stringify(this.state.ingredients))
       ingredientsCopy[id].grams = param
@@ -30,8 +57,11 @@ class IngredientView extends Component {
    }
    handlePress = () => {
       console.log("handle press")
-      console.log(this.state.ingredients)
-      buttonpress.send(this.state.ingredients);
+      this.setState({
+         dispense:
+            { 'disabled': true, 'text': 'Dispensing!!!' }
+      })
+      this.socket.send(JSON.stringify(this.state.ingredients))
    }
    handleToggle = (id) => (param) => {
       console.log(id, param)
@@ -49,16 +79,16 @@ class IngredientView extends Component {
                   {
                      this.state.ingredients.map((item, index) => (
                         <View key={item.id} style={styles.item}>
-                           <Text
-                              style={styles.nameLayout}
-                           >
-                              {item.name}
-                           </Text>
                            <Switch
                               style={styles.switchLayout}
                               value={item.enable}
                               onValueChange={this.handleToggle(item.id)}
                            />
+                           <Text
+                              style={styles.nameLayout}
+                           >
+                              {item.name}
+                           </Text>
                            <TextInput
                               style={styles.input}
                               keyboardType='numeric'
@@ -70,10 +100,11 @@ class IngredientView extends Component {
                   }
                </ScrollView>
                <TouchableOpacity
-                  style={styles.dispenseButton}
+                  style={styles.dispenseButtonLayout}
                   onPress={this.handlePress}
+                  disabled={this.state.dispense.disabled}
                >
-                  <Text style={styles.dispenseText} > Dispense </Text>
+                  <Text style={styles.dispenseTextLayout} > {this.state.dispense.text} </Text>
                </TouchableOpacity>
             </View>
          </KeyboardAvoidingView>
@@ -99,9 +130,8 @@ const styles = StyleSheet.create({
    input: {
       margin: 15,
       height: 20,
-
    },
-   dispenseButton: {
+   dispenseButtonLayout: {
       backgroundColor: '#d2f7f1',
       padding: 10,
       margin: 15,
@@ -110,7 +140,7 @@ const styles = StyleSheet.create({
       borderColor: '#2a4944',
       borderWidth: 1,
    },
-   dispenseText: {
+   dispenseTextLayout: {
       color: 'black',
       textAlign: 'center'
    },
