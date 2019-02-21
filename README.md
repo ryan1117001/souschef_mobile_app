@@ -1,2 +1,4 @@
 # souschef_mobile_app
-This requires the expo app on the app store of either iPhone or Play store
+This is a react-native application. It requires javascript (npm) and expo (found on the Android Play Store and istore
+
+It uses react-native libraries and uses WebSockets to communicate
