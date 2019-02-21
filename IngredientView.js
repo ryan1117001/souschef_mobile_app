@@ -80,13 +80,10 @@ class IngredientView extends Component {
                      this.state.ingredients.map((item, index) => (
                         <View key={item.id} style={styles.item}>
                            <Switch
-                              style={styles.switchLayout}
                               value={item.enable}
                               onValueChange={this.handleToggle(item.id)}
                            />
-                           <Text
-                              style={styles.nameLayout}
-                           >
+                           <Text>
                               {item.name}
                            </Text>
                            <TextInput
@@ -124,9 +121,6 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       justifyContent: 'space-between'
    },
-   nameLayout: {
-      // paddingRight: 20,      
-   },
    input: {
       margin: 15,
       height: 20,
@@ -143,8 +137,5 @@ const styles = StyleSheet.create({
    dispenseTextLayout: {
       color: 'black',
       textAlign: 'center'
-   },
-   switchLayout: {
-      // paddingRight: 20
    }
 })
