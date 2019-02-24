@@ -14,7 +14,8 @@ class IngredientView extends Component {
    constructor(props) {
       super(props);
 
-      this.socket = new WebSocket('ws://10.1.250.128:8000');
+      // this.socket = new WebSocket('ws://10.1.250.128:8000');
+      this.socket = new WebSocket('ws://172.16.16.3:8000');
 
       this.state = {
          ingredients: [
@@ -25,11 +26,15 @@ class IngredientView extends Component {
             { 'id': 4, 'name': 'Brown Sugar', 'enable': true, 'grams': 0 },
             { 'id': 5, 'name': 'Chocolate Chips', 'enable': true, 'grams': 0 },
          ],
-         dispense:
-            { 'disabled': false, 'text': 'Tap to Dispense' }
+         status:
+            { 'disabled': false, 'text': 'Ready to Dispense' },
       }
    }
    componentDidMount() {
+      this.handleSocketSetup()
+   }
+
+   handleSocketSetup = () => {
       this.socket.onopen = () => {
          console.log("connection opened")
       }
@@ -42,26 +47,35 @@ class IngredientView extends Component {
       this.socket.onmessage = (e) => {
          console.log(e.data)
          this.setState({
-            dispense:
-               { 'disabled': false, 'text': 'Tap to Dispense' }
+            status:
+               { 'disabled': false, 'validNum': true, 'text': 'Tap to Dispense' }
          })
       }
    }
 
    handleText = (id) => (param) => {
       let ingredientsCopy = JSON.parse(JSON.stringify(this.state.ingredients))
-      ingredientsCopy[id].grams = param
+      ingredientsCopy[id].grams = Number(param)
       this.setState({
          ingredients: ingredientsCopy
       })
    }
+
    handlePress = () => {
       console.log("handle press")
-      this.setState({
-         dispense:
-            { 'disabled': true, 'text': 'Dispensing!!!' }
-      })
-      this.socket.send(JSON.stringify(this.state.ingredients))
+      if (this.checkNumber()) {
+         this.setState({
+            status:
+               { 'disabled': true, 'text': 'Dispensing!!!' }
+         })
+         this.socket.send(JSON.stringify(this.state.ingredients))
+      }
+      else {
+         this.setState({
+            status:
+               { 'disabled': false, 'text': 'Invalid Number, Did Not Send' }
+         })
+      }
    }
    handleToggle = (id) => (param) => {
       console.log(id, param)
@@ -71,39 +85,54 @@ class IngredientView extends Component {
          ingredients: ingredientsCopy
       })
    }
+   checkNumber = () => {
+      let ingredientsCopy = JSON.parse(JSON.stringify(this.state.ingredients))
+
+      for (i = 0; i < ingredientsCopy.length; i++) {
+         if (ingredientsCopy[i].grams == null) {
+            return false
+         }
+      }
+
+      return true
+   }
    render() {
       return (
          <KeyboardAvoidingView>
-            <View>
-               <ScrollView>
-                  {
-                     this.state.ingredients.map((item, index) => (
-                        <View key={item.id} style={styles.item}>
-                           <Switch
-                              value={item.enable}
-                              onValueChange={this.handleToggle(item.id)}
-                           />
-                           <Text>
-                              {item.name}
-                           </Text>
-                           <TextInput
-                              style={styles.input}
-                              keyboardType='numeric'
-                              placeholder="grams"
-                              onChangeText={this.handleText(item.id)}
-                           />
-                        </View>
-                     ))
-                  }
-               </ScrollView>
-               <TouchableOpacity
-                  style={styles.dispenseButtonLayout}
-                  onPress={this.handlePress}
-                  disabled={this.state.dispense.disabled}
-               >
-                  <Text style={styles.dispenseTextLayout} > {this.state.dispense.text} </Text>
-               </TouchableOpacity>
-            </View>
+            <ScrollView>
+               {
+                  this.state.ingredients.map((item, index) => (
+                     <View key={item.id} style={styles.item}>
+                        <Switch
+                           value={item.enable}
+                           onValueChange={this.handleToggle(item.id)}
+                        // disabled={true} this lines breaks the expo app
+                        />
+                        <Text>
+                           {item.name}
+                        </Text>
+                        <TextInput
+                           style={styles.input}
+                           keyboardType='numeric'
+                           placeholder="grams"
+                           onChangeText={this.handleText(item.id)}
+                        />
+                     </View>
+                  ))
+               }
+            </ScrollView>
+            <Text
+               style={styles.statusTextLayout}
+            >
+               {this.state.status.text}
+            </Text>
+            <TouchableOpacity
+               style={!this.state.status.disabled ? styles.dispenseButtonLayout : styles.disabledButtonLayout}
+               onPress={this.handlePress}
+               disabled={this.state.status.disabled}
+            >
+               <Text style={styles.dispenseTextLayout} > Dispense </Text>
+            </TouchableOpacity>
          </KeyboardAvoidingView>
       )
    }
@@ -128,7 +157,16 @@ const styles = StyleSheet.create({
    dispenseButtonLayout: {
       backgroundColor: '#d2f7f1',
       padding: 10,
-      margin: 15,
+      margin: 10,
+      height: 40,
+      textAlign: 'center',
+      borderColor: '#2a4944',
+      borderWidth: 1,
+   },
+   disabledButtonLayout: {
+      backgroundColor: '#ff9486',
+      padding: 10,
+      margin: 10,
       height: 40,
       textAlign: 'center',
       borderColor: '#2a4944',
@@ -137,5 +175,14 @@ const styles = StyleSheet.create({
    dispenseTextLayout: {
       color: 'black',
       textAlign: 'center'
+   },
+   statusTextLayout: {
+      color: 'black',
+      textAlign: 'center',
+      borderColor: 'black',
+      borderWidth: 1,
+      padding: 10,
+      margin: 10,
+      height: 40,
    }
 })
