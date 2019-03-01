@@ -14,8 +14,8 @@ class IngredientView extends Component {
    constructor(props) {
       super(props);
 
-      // this.socket = new WebSocket('ws://10.1.250.128:8000');
-      this.socket = new WebSocket('ws://172.16.16.3:8000');
+      this.socket = new WebSocket('ws://10.1.250.128:8000');
+      // this.socket = new WebSocket('ws://10.1.72.190:8000');
 
       this.state = {
          ingredients: [
@@ -61,7 +61,7 @@ class IngredientView extends Component {
       })
    }
 
-   handlePress = () => {
+   handleSend = () => {
       console.log("handle press")
       if (this.checkNumber()) {
          this.setState({
@@ -77,6 +77,16 @@ class IngredientView extends Component {
          })
       }
    }
+
+   handleCalibration = () => {
+      console.log("handle calibration")
+      this.setState({
+         status:
+            { 'disabled': true, 'text': 'Calibrating!!!' }
+      })
+      this.socket.send("calibration")
+   }
+
    handleToggle = (id) => (param) => {
       console.log(id, param)
       let ingredientsCopy = JSON.parse(JSON.stringify(this.state.ingredients))
@@ -128,10 +138,17 @@ class IngredientView extends Component {
             </Text>
             <TouchableOpacity
                style={!this.state.status.disabled ? styles.dispenseButtonLayout : styles.disabledButtonLayout}
-               onPress={this.handlePress}
+               onPress={this.handleSend}
                disabled={this.state.status.disabled}
             >
                <Text style={styles.dispenseTextLayout} > Dispense </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+               style={!this.state.status.disabled ? styles.dispenseButtonLayout : styles.disabledButtonLayout}
+               onPress={this.handleCalibration}
+               disabled={this.state.status.disabled}
+            >
+               <Text style={styles.dispenseTextLayout} > Calibration </Text>
             </TouchableOpacity>
          </KeyboardAvoidingView>
       )
