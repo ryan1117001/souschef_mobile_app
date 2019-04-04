@@ -7,15 +7,17 @@ import {
    TextInput,
    TouchableOpacity,
    Switch,
-   KeyboardAvoidingView
+   KeyboardAvoidingView,
+   Alert
 } from 'react-native';
-
 class IngredientView extends Component {
    constructor(props) {
       super(props);
+      // RPI
+      // this.socket = new WebSocket('ws://10.1.220.207:8000');
 
-      this.socket = new WebSocket('ws://10.1.250.128:8000');
-      // this.socket = new WebSocket('ws://10.1.72.190:8000');
+      // PC
+      this.socket = new WebSocket('ws://10.1.69.142:8000')
 
       this.state = {
          ingredients: [
@@ -45,11 +47,29 @@ class IngredientView extends Component {
          console.log("closing", e.code, e.reason)
       }
       this.socket.onmessage = (e) => {
-         console.log(e.data)
-         this.setState({
-            status:
-               { 'disabled': false, 'validNum': true, 'text': 'Tap to Dispense' }
-         })
+         msg = JSON.parse(e.data)
+         if (msg['type'] == "alert") {
+            Alert.alert('One of the containers seems to be empty')
+            this.setState({
+               status:
+                  { 'disabled': false, 'validNum': true, 'text': 'Tap to Dispense' }
+            })
+         }
+         else if (msg['type'] == "completed") {
+            this.setState({
+               status:
+                  { 'disabled': false, 'validNum': true, 'text': 'Tap to Dispense' }
+            })
+            console.log(msg['data'][0])
+            alert_string = ""
+            for (x = 0; x < 6; x++) {
+               alert_string += (x + "&" + msg['data'][x] + "\n")
+            }
+            Alert.alert("This is what came out" + alert_string)
+         }
+         else {
+            console.log("else statement")
+         }
       }
    }
 
@@ -62,13 +82,12 @@ class IngredientView extends Component {
    }
 
    handleSend = () => {
-      console.log("handle press")
       if (this.checkNumber()) {
          this.setState({
             status:
                { 'disabled': true, 'text': 'Dispensing!!!' }
          })
-         this.socket.send(JSON.stringify(this.state.ingredients))
+         this.socket.send(JSON.stringify({"type": "dispense", "data": this.state.ingredients}))
       }
       else {
          this.setState({
@@ -78,17 +97,11 @@ class IngredientView extends Component {
       }
    }
 
-   handleCalibration = () => {
-      console.log("handle calibration")
-      this.setState({
-         status:
-            { 'disabled': true, 'text': 'Calibrating!!!' }
-      })
-      this.socket.send("calibration")
+   handleStop = () => {
+      this.socket.send(JSON.stringify({"type": "stop", "data": {}}))
    }
-
    handleToggle = (id) => (param) => {
-      console.log(id, param)
+      // console.log(id, param)
       let ingredientsCopy = JSON.parse(JSON.stringify(this.state.ingredients))
       ingredientsCopy[id].enable = param
       this.setState({
@@ -142,13 +155,6 @@ class IngredientView extends Component {
                disabled={this.state.status.disabled}
             >
                <Text style={styles.dispenseTextLayout} > Dispense </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-               style={!this.state.status.disabled ? styles.dispenseButtonLayout : styles.disabledButtonLayout}
-               onPress={this.handleCalibration}
-               disabled={this.state.status.disabled}
-            >
-               <Text style={styles.dispenseTextLayout} > Calibration </Text>
             </TouchableOpacity>
          </KeyboardAvoidingView>
       )
