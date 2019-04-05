@@ -25,10 +25,10 @@ class IngredientView extends Component {
         super(props)
 
         // PC
-        this.socket = new WebSocket('ws://10.1.69.149:8000')
+        // this.socket = new WebSocket('ws://10.1.69.149:8000')
 
         // RPI
-        // this.socket = new WebSocket('ws://10.1.210.92:8000')
+        this.socket = new WebSocket('ws://10.1.210.92:8000')
 
         this.state = {
             data: [
@@ -71,7 +71,7 @@ class IngredientView extends Component {
             ],
             snackbar: {
                 isVisible: false,
-                message: "hello world"
+                message: "sous chef"
             }
         }
     }
@@ -155,7 +155,10 @@ class IngredientView extends Component {
     }
 
     handleSend = (id) => (param) => {
-        if (Number(this.state.data[id].ingredient.grams)) {
+        if (
+            Number(this.state.data[id].ingredient.grams &&
+                1400 >= Number(this.state.data[id].ingredient.grams))
+        ) {
             dataCopy = this.state.data.slice()
             dataCopy[id].disabled = true
             this.setState({
@@ -163,10 +166,12 @@ class IngredientView extends Component {
             })
             msg = JSON.stringify({ "type": "dispense", "data": this.state.data[id].ingredient })
             this.socket.send(msg)
-            // console.log(msg)
         }
-        else {
-            Alert.alert('Did Not Send', 'Invalid number')
+        else if (!Number(this.state.data[id].ingredient.grams)) {
+            Alert.alert('Did Not Send', 'Value inputted is not a valid number')
+        }
+        else if ( 1400 < Number(this.state.data[id].ingredient.grams)) {
+            Alert.alert('Did Not Send', 'The Sous Chef can dispense a max of 1400 grams.')
         }
     };
 
