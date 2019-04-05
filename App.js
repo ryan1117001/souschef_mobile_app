@@ -1,29 +1,15 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet } from 'react-native';
-
-import IngredientView from './IngredientView.js';
+import { View, Text } from 'react-native';
+import GlobalStyles from './src/GlobalStyles';
+import IngredientView from './src/IngredientView/IngredientView'
 
 export default class SouschefMain extends Component {
+
    render() {
       return (
-         <View style={viewStyle.mainViewContainer}>
-            <Text style={viewStyle.title} >
-               Sous-Chef
-        </Text>
-            <IngredientView />
+         <View style={GlobalStyles.droidSafeArea}>
+            <IngredientView/>
          </View>
       );
    }
 }
-
-const viewStyle = StyleSheet.create({
-   mainViewContainer: {
-      marginTop: 50
-   },
-   title: {
-      color: 'black',
-      fontSize: 20,
-      fontWeight: 'bold',
-      textAlign: 'center'
-   },
-})
