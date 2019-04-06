@@ -106,7 +106,6 @@ class IngredientView extends Component {
                 </View>
                 <ActionButton
                     actions={[
-                        { icon: 'home', label: "Ingredients" },
                         { icon: 'help', label: 'Help' },
                         { icon: 'settings', label: "Calibration" },
                     ]}
