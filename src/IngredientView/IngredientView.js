@@ -7,7 +7,7 @@ import {
     View,
     TouchableOpacity,
     KeyboardAvoidingView,
-    Alert
+    Alert,
 } from 'react-native';
 import {
     RkTextInput,
@@ -16,11 +16,16 @@ import {
     RkTheme,
 } from 'react-native-ui-kitten';
 import {
-    Snackbar
+    Snackbar,
+    ActionButton
 } from 'react-native-material-ui';
+import GlobalStyles from '../GlobalStyles'
 
 
 class IngredientView extends Component {
+    static navigationOptions = {
+        header: null,
+    };
     constructor(props) {
         super(props)
 
@@ -81,8 +86,9 @@ class IngredientView extends Component {
     }
 
     render() {
+        // const {navigate} = this.props.navigation;
         return (
-            <KeyboardAvoidingView style={styles.keyboard} behavior='padding'>
+            <KeyboardAvoidingView style={GlobalStyles.droidSafeArea} behavior='padding'>
                 <FlatList
                     data={this.state.data}
                     renderItem={this.renderItem}
@@ -98,16 +104,33 @@ class IngredientView extends Component {
                             { snackbar: { isVisible: false, message: "" } }
                         )} />
                 </View>
+                <ActionButton
+                    actions={[
+                        { icon: 'home', label: "Ingredients" },
+                        { icon: 'help', label: 'Help' },
+                        { icon: 'settings', label: "Calibration" },
+                    ]}
+                    transition="speedDial"
+                    onPress={(param) => this.handleScreenChange(param)}
+                />
             </KeyboardAvoidingView>
-
         )
+    }
+    handleScreenChange = (param) => {
+        if (param == "settings") {
+            this.props.navigation.navigate('Calibration')
+        }
+        else if (param == "help") {
+            this.props.navigation.navigate('Help')
+        }
     }
     handleSocketSetup = () => {
         this.socket.onopen = () => {
             console.log("connection opened")
         }
         this.socket.onerror = (e) => {
-            console.log("error: ", e.message)
+            // console.log("error: ", e.message)
+            Alert.alert('Failed to Connect', 'Please restart the Sous Chef App')
         }
         this.socket.onclose = (e) => {
             console.log("closing", e.code, e.reason)
@@ -170,7 +193,7 @@ class IngredientView extends Component {
         else if (!Number(this.state.data[id].ingredient.grams)) {
             Alert.alert('Did Not Send', 'Value inputted is not a valid number')
         }
-        else if ( 1400 < Number(this.state.data[id].ingredient.grams)) {
+        else if (1400 < Number(this.state.data[id].ingredient.grams)) {
             Alert.alert('Did Not Send', 'The Sous Chef can dispense a max of 1400 grams.')
         }
     };
@@ -189,15 +212,13 @@ class IngredientView extends Component {
             <RkCard rkType='backImg'>
                 <Image rkCardImg source={item.photo} />
                 <View rkCardImgOverlay rkCardContent style={styles.overlay}>
-                    <View rkCardFooter style={styles.footer}>
-                        <RkTextInput
-                            rkType='rounded right'
-                            placeholder='grams'
-                            keyboardType='number-pad'
-                            maxLength={9}
-                            onChangeText={this.handleText(item.ingredient.id)}
-                        />
-                    </View>
+                    <RkTextInput
+                        rkType='rounded right'
+                        placeholder='grams'
+                        keyboardType='number-pad'
+                        maxLength={9}
+                        onChangeText={this.handleText(item.ingredient.id)}
+                    />
                 </View>
             </RkCard>
         </TouchableOpacity>
@@ -218,15 +239,9 @@ const styles = RkStyleSheet.create(theme => ({
         backgroundColor: theme.colors.screen.base,
     },
     overlay: {
-        justifyContent: 'flex-end',
+        justifyContent: 'center',
+        alignItems: 'flex-end'
     },
-    keyboard: {
-        flex: 1
-    },
-    footer: {
-        flexDirection: 'row',
-        marginLeft: 'auto'
-    }
 }));
 
 RkTheme.setType('RkText', 'header1', {
@@ -243,7 +258,6 @@ RkTheme.setType('RkTextInput', 'right', {
     container: {
         width: 110,
         height: 40,
-        textAlignVertical: 'center',
     },
     backgroundColor: 'white',
 });

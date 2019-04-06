@@ -1,15 +1,14 @@
-import React, { Component } from 'react';
-import { View, Text } from 'react-native';
-import GlobalStyles from './src/GlobalStyles';
+
 import IngredientView from './src/IngredientView/IngredientView'
+import CalibrationView from './src/CalibrationView/CalibrationView';
+import { createStackNavigator, createAppContainer } from 'react-navigation';
+import HelpView from './src/HelpView/HelpView';
 
-export default class SouschefMain extends Component {
+const MainNavigator = createStackNavigator({
+   Home: { screen: IngredientView },
+   Calibration: { screen: CalibrationView },
+   Help: {screen: HelpView}
+});
+const App = createAppContainer(MainNavigator);
 
-   render() {
-      return (
-         <View style={GlobalStyles.droidSafeArea}>
-            <IngredientView/>
-         </View>
-      );
-   }
-}
+export default App;
