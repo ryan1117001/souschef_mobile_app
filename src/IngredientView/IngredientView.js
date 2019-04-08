@@ -33,44 +33,44 @@ class IngredientView extends Component {
         // this.socket = new WebSocket('ws://10.1.69.149:8000')
 
         // RPI
-        this.socket = new WebSocket('ws://10.1.210.92:8000')
+        this.socket = new WebSocket('ws://10.24.0.96:8000')
 
         this.state = {
             data: [
                 {
-                    name: 'All-Purpose Flour',
+                    name: 'Sour Patch Kids',
                     ingredient: { id: 0, grams: 0 },
-                    photo: require('../../assets/photos/flour.jpg'),
+                    photo: require('../../assets/photos/sourpatchkids.jpg'),
                     disabled: false
                 },
                 {
-                    name: 'Baking Soda',
+                    name: 'Nuts',
                     ingredient: { id: 1, grams: 0 },
-                    photo: require('../../assets/photos/baking_soda.jpg'),
+                    photo: require('../../assets/photos/nuts.jpg'),
                     disabled: false
                 },
                 {
-                    name: 'Salt',
+                    name: 'Gummy Bears',
                     ingredient: { id: 2, grams: 0 },
-                    photo: require('../../assets/photos/salt.jpg'),
+                    photo: require('../../assets/photos/gummybears.jpg'),
                     disabled: false
                 },
                 {
-                    name: 'Baking Powder',
+                    name: 'Teddy Grahams',
                     ingredient: { id: 3, grams: 0 },
-                    photo: require('../../assets/photos/baking_powder.jpg'),
+                    photo: require('../../assets/photos/teddygrahams.jpg'),
                     disabled: false
                 },
                 {
-                    name: 'Brown Sugar',
+                    name: 'Dried Dates',
                     ingredient: { id: 4, grams: 0 },
-                    photo: require('../../assets/photos/brown_sugar.jpg'),
+                    photo: require('../../assets/photos/drydates1.jpg'),
                     disabled: false
                 },
                 {
-                    name: 'Chocolate Chips',
+                    name: 'raisins2',
                     ingredient: { id: 5, grams: 0 },
-                    photo: require('../../assets/photos/choco_chip.jpg'),
+                    photo: require('../../assets/photos/raisins2.jpg'),
                     disabled: false
                 },
             ],
@@ -107,7 +107,7 @@ class IngredientView extends Component {
                 <ActionButton
                     actions={[
                         { icon: 'help', label: 'Help' },
-                        { icon: 'settings', label: "Calibration" },
+                        // { icon: 'settings', label: "Calibration" },
                     ]}
                     transition="speedDial"
                     onPress={(param) => this.handleScreenChange(param)}
@@ -138,7 +138,8 @@ class IngredientView extends Component {
             msg = JSON.parse(e.data)
             if (msg['type'] == "alert") {
                 id = msg['data']['id']
-                alert_string = 'You seem to be out of ' + this.state.data[id].name + "."
+                grams = msg['data']['grams']
+                alert_string = 'You seem to be out of ' + this.state.data[id].name + ". So far only " + grams + " grams."
                 Alert.alert('Empty Container', alert_string)
                 dataCopy = this.state.data.slice()
                 dataCopy[id].disabled = false
@@ -217,6 +218,7 @@ class IngredientView extends Component {
                         keyboardType='number-pad'
                         maxLength={9}
                         onChangeText={this.handleText(item.ingredient.id)}
+                        disabled={item.disabled}
                     />
                 </View>
             </RkCard>
