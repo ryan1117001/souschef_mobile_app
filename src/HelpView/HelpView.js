@@ -15,19 +15,19 @@ class HelpView extends Component {
 					</Text>
 					<Text style={styles.bullet}>
 						{'\u2022' + " "}
-						<Text> 
+						<Text>
 							Make sure the Sous Chef is powered on!
 						</Text>
 					</Text>
 					<Text style={styles.bullet}>
 						{'\u2022' + " "}
-						<Text> 
+						<Text>
 							Put in the amount of grams that you want.
 						</Text>
 					</Text>
 					<Text style={styles.bullet}>
 						{'\u2022' + " "}
-						<Text> 
+						<Text>
 							Press the image to dispense and you're done!
 						</Text>
 					</Text>

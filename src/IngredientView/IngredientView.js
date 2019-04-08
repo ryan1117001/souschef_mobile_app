@@ -116,10 +116,7 @@ class IngredientView extends Component {
         )
     }
     handleScreenChange = (param) => {
-        if (param == "settings") {
-            this.props.navigation.navigate('Calibration')
-        }
-        else if (param == "help") {
+        if (param == "help") {
             this.props.navigation.navigate('Help')
         }
     }
