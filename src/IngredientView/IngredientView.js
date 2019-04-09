@@ -115,6 +115,10 @@ class IngredientView extends Component {
             </KeyboardAvoidingView>
         )
     }
+
+    handleRounding(value, precision) {
+        return parseFloat(Math.round(value * 100) / 100).toFixed(precision)
+    }
     handleScreenChange = (param) => {
         if (param == "help") {
             this.props.navigation.navigate('Help')
@@ -136,7 +140,7 @@ class IngredientView extends Component {
             if (msg['type'] == "alert") {
                 id = msg['data']['id']
                 grams = msg['data']['grams']
-                alert_string = 'You seem to be out of ' + this.state.data[id].name + ". So far only " + grams + " grams."
+                alert_string = 'You seem to be out of ' + this.state.data[id].name + ". So far only " + this.handleRounding(grams, 1) + " grams."
                 Alert.alert('Empty Container', alert_string)
                 dataCopy = this.state.data.slice()
                 dataCopy[id].disabled = false
@@ -152,7 +156,7 @@ class IngredientView extends Component {
                 this.setState({
                     data: dataCopy
                 })
-                snackbar_string = "Dispensed " + grams + " grams of " + this.state.data[id].name + "."
+                snackbar_string = "Dispensed " + this.handleRounding(grams, 1) + " grams of " + this.state.data[id].name + "."
                 this.setState({
                     snackbar: {
                         isVisible: true,
