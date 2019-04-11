@@ -23,19 +23,18 @@ import GlobalStyles from '../GlobalStyles'
 
 
 class IngredientView extends Component {
+    // hides the header
     static navigationOptions = {
         header: null,
     };
     constructor(props) {
         super(props)
 
-        // PC
-        // this.socket = new WebSocket('ws://10.1.69.149:8000')
-
-        // RPI
+        // IP address of the RPI
         this.socket = new WebSocket('ws://10.24.0.96:8000')
 
         this.state = {
+            // data regarding the ingredients
             data: [
                 {
                     name: 'Sour Patch Kids',
@@ -68,12 +67,14 @@ class IngredientView extends Component {
                     disabled: false
                 },
                 {
-                    name: 'raisins2',
+                    name: 'Raisins',
                     ingredient: { id: 5, grams: 0 },
                     photo: require('../../assets/photos/raisins2.jpg'),
                     disabled: false
                 },
             ],
+            // The popup at the bottome
+            // default message is "sous chef"
             snackbar: {
                 isVisible: false,
                 message: "sous chef"
@@ -88,7 +89,9 @@ class IngredientView extends Component {
     render() {
         // const {navigate} = this.props.navigation;
         return (
+            // Takes account of the keyboard when it is needed
             <KeyboardAvoidingView style={GlobalStyles.droidSafeArea} behavior='padding'>
+                {/* Each invdividual button is loaded here */}
                 <FlatList
                     data={this.state.data}
                     renderItem={this.renderItem}
@@ -96,6 +99,7 @@ class IngredientView extends Component {
                     style={styles.root}
                 />
                 <View>
+                    { /* Snackbar message shows for 2.5 seconds on the screen */}
                     <Snackbar
                         visible={this.state.snackbar.isVisible}
                         message={this.state.snackbar.message}
@@ -104,10 +108,10 @@ class IngredientView extends Component {
                             { snackbar: { isVisible: false, message: "" } }
                         )} />
                 </View>
+                {/* Action Button used as navigation */}
                 <ActionButton
                     actions={[
                         { icon: 'help', label: 'Help' },
-                        // { icon: 'settings', label: "Calibration" },
                     ]}
                     transition="speedDial"
                     onPress={(param) => this.handleScreenChange(param)}
@@ -116,20 +120,24 @@ class IngredientView extends Component {
         )
     }
 
+    // Round the grams to one decimal
     handleRounding(value, precision) {
         return parseFloat(Math.round(value * 100) / 100).toFixed(precision)
     }
+
+    // Change the screen as needed
     handleScreenChange = (param) => {
         if (param == "help") {
             this.props.navigation.navigate('Help')
         }
     }
+
+    // intializes the socket, handles errors, and handles messages
     handleSocketSetup = () => {
         this.socket.onopen = () => {
             console.log("connection opened")
         }
         this.socket.onerror = (e) => {
-            // console.log("error: ", e.message)
             Alert.alert('Failed to Connect', 'Please restart the Sous Chef App')
         }
         this.socket.onclose = (e) => {
@@ -137,6 +145,7 @@ class IngredientView extends Component {
         }
         this.socket.onmessage = (e) => {
             msg = JSON.parse(e.data)
+            // sent if the container is stalled or empty
             if (msg['type'] == "alert") {
                 id = msg['data']['id']
                 grams = msg['data']['grams']
@@ -148,6 +157,7 @@ class IngredientView extends Component {
                     data: dataCopy
                 })
             }
+            // if the sous chef finished dispenseing, snackbar will appear
             else if (msg['type'] == "completed") {
                 id = msg['data']['id']
                 grams = msg['data']['grams']
@@ -170,6 +180,7 @@ class IngredientView extends Component {
         }
     }
 
+    // when the textfield ever changes, we call this to set the state
     handleText = (id) => (param) => {
         dataCopy = this.state.data.slice()
         dataCopy[id].ingredient.grams = Number(param)
@@ -178,7 +189,9 @@ class IngredientView extends Component {
         })
     }
 
+    // the data will be sent through the socket
     handleSend = (id) => (param) => {
+        // if the number is less than 1400 and is a valid number
         if (
             Number(this.state.data[id].ingredient.grams &&
                 1400 >= Number(this.state.data[id].ingredient.grams))
@@ -191,9 +204,11 @@ class IngredientView extends Component {
             msg = JSON.stringify({ "type": "dispense", "data": this.state.data[id].ingredient })
             this.socket.send(msg)
         }
+        // if not a valid number
         else if (!Number(this.state.data[id].ingredient.grams)) {
             Alert.alert('Did Not Send', 'Value inputted is not a valid number')
         }
+        // if the value is greater than 1400
         else if (1400 < Number(this.state.data[id].ingredient.grams)) {
             Alert.alert('Did Not Send', 'The Sous Chef can dispense a max of 1400 grams.')
         }
@@ -201,6 +216,7 @@ class IngredientView extends Component {
 
     extractItemKey = (item) => `${item.ingredient.id}`;
 
+    // renders the button that is pressed
     renderItem = ({ item }) => (
         <TouchableOpacity
             style={item.disabled ? styles.disabled : styles.enabled}
@@ -229,7 +245,7 @@ class IngredientView extends Component {
 
 export default IngredientView
 
-
+//Styles used on the app
 const styles = RkStyleSheet.create(theme => ({
     disabled: {
         opacity: .4

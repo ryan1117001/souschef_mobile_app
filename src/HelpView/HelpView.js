@@ -3,9 +3,12 @@ import { View, Text, ScrollView, StyleSheet } from 'react-native';
 
 class HelpView extends Component {
 
+	// Help Page title
 	static navigationOptions = {
 		title: "Help Page"
 	};
+
+	// Renders instruction for the sous chef
 	render() {
 		return (
 			<ScrollView>

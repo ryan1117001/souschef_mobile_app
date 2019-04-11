@@ -5,7 +5,7 @@ import HelpView from './src/HelpView/HelpView';
 
 const MainNavigator = createStackNavigator({
    Home: { screen: IngredientView },
-   Help: {screen: HelpView}
+   Help: { screen: HelpView }
 });
 const App = createAppContainer(MainNavigator);
 
