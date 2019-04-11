@@ -8,6 +8,7 @@ import {
     TouchableOpacity,
     KeyboardAvoidingView,
     Alert,
+    SafeAreaView
 } from 'react-native';
 import {
     RkTextInput,
@@ -89,34 +90,36 @@ class IngredientView extends Component {
     render() {
         // const {navigate} = this.props.navigation;
         return (
-            // Takes account of the keyboard when it is needed
-            <KeyboardAvoidingView style={GlobalStyles.droidSafeArea} behavior='padding'>
-                {/* Each invdividual button is loaded here */}
-                <FlatList
-                    data={this.state.data}
-                    renderItem={this.renderItem}
-                    keyExtractor={this.extractItemKey}
-                    style={styles.root}
-                />
-                <View>
-                    { /* Snackbar message shows for 2.5 seconds on the screen */}
-                    <Snackbar
-                        visible={this.state.snackbar.isVisible}
-                        message={this.state.snackbar.message}
-                        timeout={2500}
-                        onRequestClose={() => this.setState(
-                            { snackbar: { isVisible: false, message: "" } }
-                        )} />
-                </View>
-                {/* Action Button used as navigation */}
-                <ActionButton
-                    actions={[
-                        { icon: 'help', label: 'Help' },
-                    ]}
-                    transition="speedDial"
-                    onPress={(param) => this.handleScreenChange(param)}
-                />
-            </KeyboardAvoidingView>
+            <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
+                {/* Takes account of the keyboard when it is needed */}
+                <KeyboardAvoidingView style={GlobalStyles.droidSafeArea} behavior='padding'>
+                    {/* Each invdividual button is loaded here */}
+                    <FlatList
+                        data={this.state.data}
+                        renderItem={this.renderItem}
+                        keyExtractor={this.extractItemKey}
+                        style={styles.root}
+                    />
+                    <View>
+                        { /* Snackbar message shows for 2.5 seconds on the screen */}
+                        <Snackbar
+                            visible={this.state.snackbar.isVisible}
+                            message={this.state.snackbar.message}
+                            timeout={2500}
+                            onRequestClose={() => this.setState(
+                                { snackbar: { isVisible: false, message: "" } }
+                            )} />
+                    </View>
+                    {/* Action Button used as navigation */}
+                    <ActionButton
+                        actions={[
+                            { icon: 'help', label: 'Help' },
+                        ]}
+                        transition="speedDial"
+                        onPress={(param) => this.handleScreenChange(param)}
+                    />
+                </KeyboardAvoidingView>
+            </SafeAreaView>
         )
     }
 
